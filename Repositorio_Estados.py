@@ -13,11 +13,15 @@ class RepositorioDeEstados:
             return ["No hay estados registrados."]
         return [str(estado) for estado in self.estados.values()]
 
-    def agregar_estado(self, id: str, vector, base: str):
+    def agregar_estado(self, id, vector, base):
         if id in self.estados:
-            raise ValueError(f"Error: ya existe un estado con identificador '{id}'.")
-        nuevo_estado = EstadoCuantico(id, vector, base)
-        self.estados[id] = nuevo_estado
+            print(f"Error: ya existe un estado con identificador '{id}'")
+            return
+        estado = EstadoCuantico(id, vector, base)
+        self.estados[id] = estado
+        if self.archivo_actual:
+            self.guardar(self.archivo_actual)
+
 
     def obtener_estado(self, id: str) -> EstadoCuantico:
         if id not in self.estados:
@@ -29,62 +33,35 @@ class RepositorioDeEstados:
             raise KeyError(f"No se puede eliminar: no existe estado con ID '{id}'.")
         del self.estados[id]
 
-    def aplicar_operador(self, id_estado: str, operador: OperadorCuantico, nuevo_id: str = None) -> EstadoCuantico:
-        """
-        Aplica un operador cuántico a un estado existente en el repositorio.
-        - Si se proporciona `nuevo_id`, el resultado se guarda con ese ID (error si ya existe).
-        - Si no se da `nuevo_id`, se usa el formato `id_estado_operador.nombre` (error si ya existe).
-        - No se sobrescribe el estado original por defecto.
-        - Valida que la dimensión del operador y del estado coincidan.
-        """
-        if id_estado not in self.estados:
-            raise KeyError(f"No existe estado con ID '{id_estado}'.")
-
-        estado_original = self.estados[id_estado]
-
-        # Verificar dimensiones
-        dim_estado = len(estado_original.vector)
-        dim_op = len(operador.matriz)
-        if dim_op != dim_estado or any(len(fila) != dim_estado for fila in operador.matriz):
-            raise ValueError(f"Dimensión del operador ({dim_op}x{dim_op}) no coincide con el estado ({dim_estado}).")
-
-        estado_resultante = operador.aplicar(estado_original)
-
-        # Determinar ID del nuevo estado
-        id_resultado = nuevo_id or f"{id_estado}_{operador.nombre}"
-
-        # Verificar si ya existe ese ID
-        if id_resultado in self.estados:
-            raise ValueError(f"Ya existe un estado con ID '{id_resultado}', no se puede sobrescribir.")
-
-        estado_resultante.id = id_resultado
-        self.estados[id_resultado] = estado_resultante
-
-        return estado_resultante
-    def medir_estado(self, id: str) -> None:
-        """
-        Mide el estado cuántico con el ID dado, calcula probabilidades y muestra
-        resultados formateados en consola. Las probabilidades se normalizan si es necesario.
-        """
-        if id not in self.estados:
-            print(f"[Error] No existe el estado con ID '{id}'.")
+    def aplicar_operador(self, id_estado, operador, nuevo_id=None):
+        estado_original = self.obtener_estado(id_estado)
+        if not estado_original:
+            print(f"Error: no existe el estado con id '{id_estado}'")
             return
 
-        estado = self.estados[id]
-        amplitudes = estado.vector
-        base = estado.base
+        if len(estado_original.vector) != len(operador.matriz):
+            print("Error: Dimensión del operador y del estado no coinciden.")
+            return
 
-        # Calcular módulo al cuadrado de cada amplitud
-        probabilidades = [abs(a)**2 for a in amplitudes]
-        suma = sum(probabilidades)
+        nuevo_estado = operador.aplicar(estado_original)
 
-        # Normalización por seguridad (en caso de error numérico)
-        if abs(suma - 1.0) > 1e-6:
-            probabilidades = [p / suma for p in probabilidades]
+        if nuevo_id:
+            nuevo_estado.id = nuevo_id
+        else:
+            nuevo_estado.id = f"{id_estado}_{operador.nombre}"
 
-        print(f"Medición del estado '{estado.id}' (base {base}):")
+        self.estados[nuevo_estado.id] = nuevo_estado
+        if self.archivo_actual:
+            self.guardar(self.archivo_actual)
+    def medir_estado(self, id):
+        estado = self.obtener_estado(id)
+        if not estado:
+            print(f"Error: estado '{id}' no encontrado.")
+            return
+        probabilidades = estado.medir()
+        print(f"Medición del estado {estado.id} (base {estado.base}):")
         for i, p in enumerate(probabilidades):
-            print(f" - Estado base {i}: {round(p * 100, 2)}%")
+            print(f" - Estado base {i}: {round(p * 100, 3)}%")
 
 #NO COLAPSO DEL ESTADO
 # Crear el repositorio
