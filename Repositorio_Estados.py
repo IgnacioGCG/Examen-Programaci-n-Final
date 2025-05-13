@@ -115,16 +115,21 @@ def guardar(self, archivo):
                 writer.writerow([estado.id, estado.base, str(estado.vector)])
 
 def cargar(self, archivo):
-        # Cargar los estados desde un archivo CSV
-        with open(archivo, mode='r') as file:
-            reader = csv.reader(file, delimiter=',')
-            next(reader)  # Saltar la cabecera
-            for row in reader:
-                id = row[0]
-                base = row[1]
-                # Convertir la cadena del vector a una lista de Python
-                vector = ast.literal_eval(row[2])
-                self.agregar_estado(id, vector, base)
+        try:
+            with open(archivo, newline='', mode='r') as file:
+                reader = csv.reader(file, delimiter=';')
+                for fila in reader:
+                    if len(fila) != 3:
+                        print(f"Fila malformada: {fila}")
+                        continue
+                    id, base, vector_str = fila
+                    try:
+                        vector = ast.literal_eval(vector_str)  # más seguro que eval()
+                        self.agregar_estado(id, vector, base)
+                    except (SyntaxError, ValueError) as e:
+                        print(f"Error al interpretar vector del estado '{id}': {e}")
+        except FileNotFoundError:
+            print(f"Archivo '{archivo}' no encontrado.")
 
 # Crear un repositorio de estados
 repo = RepositorioDeEstados()
