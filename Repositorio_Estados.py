@@ -93,7 +93,7 @@ def guardar(self, archivo):
 
 def cargar(self, archivo):
         try:
-            with open(archivo, newline='', mode='r') as file:
+            with open(archivo, newline='') as file:
                 reader = csv.reader(file, delimiter=';')
                 for fila in reader:
                     if len(fila) != 3:
@@ -101,10 +101,11 @@ def cargar(self, archivo):
                         continue
                     id, base, vector_str = fila
                     try:
-                        vector = ast.literal_eval(vector_str)  # más seguro que eval()
-                        self.agregar_estado(id, vector, base)
-                    except (SyntaxError, ValueError) as e:
-                        print(f"Error al interpretar vector del estado '{id}': {e}")
+                        vector = ast.literal_eval(vector_str)
+                        self.estados[id] = EstadoCuantico(id, vector, base)
+                    except Exception as e:
+                        print(f"Error en vector del estado '{id}': {e}")
+            self.archivo_actual = archivo
         except FileNotFoundError:
             print(f"Archivo '{archivo}' no encontrado.")
 
