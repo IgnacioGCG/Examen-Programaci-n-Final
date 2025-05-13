@@ -60,20 +60,29 @@ class RepositorioDeEstados:
         self.estados[id_resultado] = estado_resultante
 
         return estado_resultante
-    def medir_estado(self, id: str) -> str:
+    def medir_estado(self, id: str) -> None:
         """
-        Mide el estado cuántico con el ID dado y retorna una representación
-        legible de las probabilidades de resultado al medir en su base.
+        Mide el estado cuántico con el ID dado, calcula probabilidades y muestra
+        resultados formateados en consola. Las probabilidades se normalizan si es necesario.
         """
         if id not in self.estados:
-            raise KeyError(f"No existe el estado con ID '{id}'.")
+            print(f"[Error] No existe el estado con ID '{id}'.")
+            return
 
         estado = self.estados[id]
-        probabilidades = estado.medir()
+        amplitudes = estado.vector
+        base = estado.base
 
-        salida = f"Medición del estado '{estado.id}' en base '{estado.base}':\n"
-        for resultado, prob in probabilidades.items():
-            porcentaje = round(prob * 100, 2)
-            salida += f" - Resultado {resultado}: {porcentaje}%\n"
-        return salida
+        # Calcular módulo al cuadrado de cada amplitud
+        probabilidades = [abs(a)**2 for a in amplitudes]
+        suma = sum(probabilidades)
+
+        # Normalización por seguridad (en caso de error numérico)
+        if abs(suma - 1.0) > 1e-6:
+            probabilidades = [p / suma for p in probabilidades]
+
+        print(f"Medición del estado '{estado.id}' (base {base}):")
+        for i, p in enumerate(probabilidades):
+            print(f" - Estado base {i}: {round(p * 100, 2)}%")
+
 
