@@ -85,4 +85,20 @@ class RepositorioDeEstados:
         for i, p in enumerate(probabilidades):
             print(f" - Estado base {i}: {round(p * 100, 2)}%")
 
+#NO COLAPSO DEL ESTADO
+# Crear el repositorio
+repo = RepositorioDeEstados()
+
+# Crear el estado |0⟩
+repo.agregar_estado("q0", [1, 0], "computacional")
+repo.medir_estado("q0")  # Esperado: 100% en base 0
+
+# Crear el estado |+⟩ (superposición equitativa)
+repo.agregar_estado("plus", [0.707 + 0j, 0.707 + 0j], "computacional")
+repo.medir_estado("plus")  # Esperado: Aproximadamente 50% y 50%
+
+# Aplicar una puerta H a |0⟩, que debería transformar |0⟩ en |+⟩
+H = OperadorCuantico("H", [[0.707, 0.707], [0.707, -0.707]])
+repo.aplicar_operador("q0", H, "q0_H")
+repo.medir_estado("q0_H")  # Esperado: Aproximadamente 50% y 50%
 
