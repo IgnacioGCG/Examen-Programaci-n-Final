@@ -1,6 +1,6 @@
 import unittest
 
-from Estado_Cuantico import EstadoCuantico
+from Simulacion.src.Estado_Cuantico import EstadoCuantico
 
 class TestEstadoCuantico(unittest.TestCase):
     def test_normalizacion(self):

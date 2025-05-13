@@ -1,5 +1,5 @@
 import numpy as np
-from Estado_Cuantico import EstadoCuantico
+from Simulacion.src.Estado_Cuantico import EstadoCuantico
 from typing import List, Union
 
 

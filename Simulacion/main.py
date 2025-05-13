@@ -1,5 +1,5 @@
-from Simulacion.Repositorio_Estados import RepositorioDeEstados
-from Simulacion.Operador_Cuantico import OperadorCuantico
+from Simulacion.src.Repositorio_Estados import RepositorioDeEstados
+from Simulacion.src.Operador_Cuantico import OperadorCuantico
 
 if __name__ == "__main__":
     repo = RepositorioDeEstados()

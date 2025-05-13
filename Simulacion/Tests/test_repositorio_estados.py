@@ -1,6 +1,6 @@
 import unittest
-from Repositorio_Estados import RepositorioDeEstados
-from Operador_Cuantico import OperadorCuantico
+from Simulacion.src.Repositorio_Estados import RepositorioDeEstados
+from Simulacion.src.Operador_Cuantico import OperadorCuantico
 
 class TestRepositorioDeEstados(unittest.TestCase):
     def test_agregar_y_obtener(self):

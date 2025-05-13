@@ -1,6 +1,6 @@
 import unittest
-from Estado_Cuantico import EstadoCuantico
-from Operador_Cuantico import OperadorCuantico
+from Simulacion.src.Estado_Cuantico import EstadoCuantico
+from Simulacion.src.Operador_Cuantico import OperadorCuantico
 
 class TestOperadorCuantico(unittest.TestCase):
     def test_aplicar_x(self):

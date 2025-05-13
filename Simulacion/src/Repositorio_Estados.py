@@ -1,5 +1,5 @@
-from Estado_Cuantico import EstadoCuantico
-from Simulacion.Operador_Cuantico import OperadorCuantico
+from Simulacion.src.Estado_Cuantico import EstadoCuantico
+from Simulacion.src.Operador_Cuantico import OperadorCuantico
 from typing import Dict, List
 import csv
 import ast  # Para convertir la cadena del vector a una lista de Python
