@@ -1,7 +1,8 @@
 from Estado_Cuantico import EstadoCuantico
 from Operador_Cuantico import OperadorCuantico
 from typing import Dict, List
-
+import csv
+import ast  # Para convertir la cadena del vector a una lista de Python
 
 class RepositorioDeEstados:
     def __init__(self):
@@ -102,3 +103,40 @@ H = OperadorCuantico("H", [[0.707, 0.707], [0.707, -0.707]])
 repo.aplicar_operador("q0", H, "q0_H")
 repo.medir_estado("q0_H")  # Esperado: Aproximadamente 50% y 50%
 
+def guardar(self, archivo):
+        # Guardar los estados en un archivo CSV
+        with open(archivo, mode='w', newline='') as file:
+            writer = csv.writer(file, delimiter=',')
+            # Escribir la cabecera
+            writer.writerow(['id', 'base', 'vector'])
+            # Escribir los estados
+            for estado in self.estados.values():
+                # Serializar el vector como una cadena
+                writer.writerow([estado.id, estado.base, str(estado.vector)])
+
+def cargar(self, archivo):
+        # Cargar los estados desde un archivo CSV
+        with open(archivo, mode='r') as file:
+            reader = csv.reader(file, delimiter=',')
+            next(reader)  # Saltar la cabecera
+            for row in reader:
+                id = row[0]
+                base = row[1]
+                # Convertir la cadena del vector a una lista de Python
+                vector = ast.literal_eval(row[2])
+                self.agregar_estado(id, vector, base)
+
+# Crear un repositorio de estados
+repo = RepositorioDeEstados()
+
+# Agregar algunos estados
+repo.agregar_estado("q0", [1.0, 0.0], "computacional")
+repo.agregar_estado("plus", [0.707, 0.707], "computacional")
+
+# Guardar los estados en un archivo
+repo.guardar("estados.csv")
+
+# Cargar los estados desde el archivo
+repo2 = RepositorioDeEstados()
+repo2.cargar("estados.csv")
+print(repo2.listar_estados())  # Debería mostrar los estados cargados
