@@ -1,46 +1,50 @@
-import json
 from Estado_Cuantico import EstadoCuantico
+from Operador_Cuantico import OperadorCuantico
+from typing import Dict, List
+
 
 class RepositorioDeEstados:
     def __init__(self):
-        self.estados = {}
+        self.estados: Dict[str, EstadoCuantico] = {}
 
-    def listar_estados(self):
-        for estado in self.estados.values():
-            print(str(estado))
+    def listar_estados(self) -> List[str]:
+        if not self.estados:
+            return ["No hay estados registrados."]
+        return [str(estado) for estado in self.estados.values()]
 
-    def agregar_estado(self, identificador, vector_estado, base):
-        if identificador in self.estados:
-            raise ValueError(f"El estado con ID '{identificador}' ya existe.")
-        self.estados[identificador] = EstadoCuantico(identificador, vector_estado, base)
+    def agregar_estado(self, id: str, vector, base: str):
+        if id in self.estados:
+            raise ValueError(f"Error: ya existe un estado con identificador '{id}'.")
+        nuevo_estado = EstadoCuantico(id, vector, base)
+        self.estados[id] = nuevo_estado
 
-    def obtener_estado(self, identificador):
-        if identificador not in self.estados:
-            raise ValueError(f"El estado con ID '{identificador}' no se encontró.")
-        return self.estados[identificador]
+    def obtener_estado(self, id: str) -> EstadoCuantico:
+        if id not in self.estados:
+            raise KeyError(f"No se encontró el estado con ID '{id}'.")
+        return self.estados[id]
 
-    def aplicar_operador(self, id_estado, operador, nuevo_id=None):
-        estado = self.obtener_estado(id_estado)
-        nuevo_estado = operador.aplicar(estado)
-        nuevo_estado.identificador = nuevo_id or nuevo_estado.identificador
-        if nuevo_estado.identificador in self.estados:
-            raise ValueError(f"El nuevo ID '{nuevo_estado.identificador}' ya existe en el repositorio.")
-        self.estados[nuevo_estado.identificador] = nuevo_estado
+    def eliminar_estado(self, id: str):
+        if id not in self.estados:
+            raise KeyError(f"No se puede eliminar: no existe estado con ID '{id}'.")
+        del self.estados[id]
 
-    def medir_estado(self, identificador):
-        estado = self.obtener_estado(identificador)
-        probabilidades = estado.medir()
-        print(f"Probabilidades de medición para '{identificador}': {probabilidades}")
-        return probabilidades
+    def aplicar_operador(self, id_estado: str, operador: OperadorCuantico, nuevo_id: str = None):
+        if id_estado not in self.estados:
+            raise KeyError(f"No existe estado con ID '{id_estado}'.")
 
-    def guardar(self, archivo):
-        with open(archivo, 'w') as f:
-            json.dump([estado.a_diccionario() for estado in self.estados.values()], f, indent=2)
+        estado_original = self.estados[id_estado]
+        estado_resultante = operador.aplicar(estado_original)
 
-    def cargar(self, archivo):
-        with open(archivo, 'r') as f:
-            datos = json.load(f)
-            self.estados = {
-                item["identificador"]: EstadoCuantico.desde_diccionario(item)
-                for item in datos
-            }
+        # Determinar identificador del nuevo estado
+        id_resultado = nuevo_id or f"{id_estado}_{operador.nombre}"
+
+        # Si se sobrescribe el estado original
+        if id_resultado == id_estado:
+            self.estados[id_estado] = estado_resultante
+        else:
+            if id_resultado in self.estados:
+                raise ValueError(f"Ya existe un estado con ID '{id_resultado}', no se puede sobrescribir.")
+            estado_resultante.id = id_resultado
+            self.estados[id_resultado] = estado_resultante
+
+        return estado_resultante  # Opcional: útil para inspección inmediata
